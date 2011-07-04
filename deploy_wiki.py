@@ -16,7 +16,7 @@ logger = logging.getLogger('deploy_wiki')
 
 def debug(str):
     logger.debug(str)
-    print str
+    #print str
 
 
 def line_handler(line, attach_dir, deploy_media_dir, image_prefix):
@@ -32,7 +32,7 @@ def line_handler(line, attach_dir, deploy_media_dir, image_prefix):
             debug('match: (%d) %s, %s' % (len(m.groups()), m.groups(), link_text))
             new_line += m.group(1) + bracket[0]*2 + link_text
             if os.path.exists(os.path.join(attach_dir, m.group(2))):
-                shutil.copy(os.path.join(attach_dir, m.group(2)), os.path.join(deploy_media_dir, m.group(2)))
+                shutil.copy(os.path.join(attach_dir, m.group(2)), os.path.join(deploy_media_dir, m.group(2)).lower())
             if m.group(3):
                 new_line += '|' + m.group(3).strip('|')
             new_line += bracket[1]*2
@@ -79,7 +79,7 @@ def paragraph_handler(line, content):
         if line.startswith('type'):
             splitter = re.compile(r'[= ]')
             l = splitter.split(line)
-            print l
+            #print l
             type = l[1]
             filename = "noname"
             if len(l) >= 3:
@@ -129,6 +129,9 @@ def paragraph_handler(line, content):
 
 def main(notebook_root, wiki_root, user_name, attach_dir, page_path):
 
+    if attach_dir == '-':
+        attach_dir = page_path[:-4]
+
     if not os.path.exists(attach_dir):
         os.mkdir(attach_dir)
 
@@ -157,6 +160,8 @@ def main(notebook_root, wiki_root, user_name, attach_dir, page_path):
 
     for line in f:
         line = line.rstrip()
+        if '~~private~~' in line.lower():
+            sys.exit(0)
         line = line_handler(line, attach_dir, deploy_media_dir, attach_relative_dir)
         new_files_content = paragraph_handler(line, new_files_content)
         #new_files_content += r + '\n' * 2
