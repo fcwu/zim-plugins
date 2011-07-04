@@ -134,6 +134,7 @@ class ZimSearch(wx.Frame, listmix.ColumnSorterMixin):
         self.list.SetColumnWidth(1, wx.LIST_AUTOSIZE)
 
     def OnSearch(self, event):
+        self.list.DeleteAllItems()
         self.Search(True, self.input.GetValue().encode("utf-8"))
 
     def OnClose(self, event):
